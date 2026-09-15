@@ -91,7 +91,7 @@ class _HalamanMenuWarungState extends State<HalamanMenuWarung> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Kasir Warung Makan'),
+        title: const Text('Go-Warung', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
         centerTitle: true,
       ),
       body: Column(

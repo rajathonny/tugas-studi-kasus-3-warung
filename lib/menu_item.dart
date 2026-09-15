@@ -44,7 +44,7 @@ List<MenuItem> menuItems = [
     kategori: 'Makanan',
     harga: 14000,
     tersedia: true,
-    stokTersisa: 8,
+    stokTersisa: 999,
     imgPath: 'assets/images/mie ayam.webp',
   ),
   MenuItem(
@@ -60,7 +60,7 @@ List<MenuItem> menuItems = [
     kategori: 'Makanan',
     harga: 25000,
     tersedia: true,
-    stokTersisa: 4,
+    stokTersisa: 0,
     imgPath: 'assets/images/images.jpg',
   ),
   MenuItem(
