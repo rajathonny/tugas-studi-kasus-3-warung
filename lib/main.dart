@@ -1,121 +1,293 @@
 import 'package:flutter/material.dart';
+import 'menu_item.dart';
+import 'menu_card.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(const AplikasiWarungApp());
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+class AplikasiWarungApp extends StatelessWidget {
+  const AplikasiWarungApp({super.key});
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: 'Warung Makan Nusantara',
+      debugShowCheckedModeBanner: false,
       theme: ThemeData(
-        // This is the theme of your application.
-        //
-        // TRY THIS: Try running your application with "flutter run". You'll see
-        // the application has a purple toolbar. Then, without quitting the app,
-        // try changing the seedColor in the colorScheme below to Colors.green
-        // and then invoke "hot reload" (save your changes or press the "hot
-        // reload" button in a Flutter-supported IDE, or press "r" if you used
-        // the command line to start the app).
-        //
-        // Notice that the counter didn't reset back to zero; the application
-        // state is not lost during the reload. To reset the state, use hot
-        // restart instead.
-        //
-        // This works for code too, not just values: Most code changes can be
-        // tested with just a hot reload.
-        colorScheme: .fromSeed(seedColor: Colors.deepPurple),
+        primarySwatch: Colors.teal,
+        scaffoldBackgroundColor: const Color(0xFFF7F9FA),
       ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
+      home: const HalamanMenuWarung(),
     );
   }
 }
 
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title});
-
-  // This widget is the home page of your application. It is stateful, meaning
-  // that it has a State object (defined below) that contains fields that affect
-  // how it looks.
-
-  // This class is the configuration for the state. It holds the values (in this
-  // case the title) provided by the parent (in this case the App widget) and
-  // used by the build method of the State. Fields in a Widget subclass are
-  // always marked "final".
-
-  final String title;
+class HalamanMenuWarung extends StatefulWidget {
+  const HalamanMenuWarung({super.key});
 
   @override
-  State<MyHomePage> createState() => _MyHomePageState();
+  State<HalamanMenuWarung> createState() => _HalamanMenuWarungState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
+class _HalamanMenuWarungState extends State<HalamanMenuWarung> {
+  late List<MenuItem> _semuaMenu;
+  late TextEditingController _searchController;
 
-  void _incrementCounter() {
-    setState(() {
-      // This call to setState tells the Flutter framework that something has
-      // changed in this State, which causes it to rerun the build method below
-      // so that the display can reflect the updated values. If we changed
-      // _counter without calling setState(), then the build method would not be
-      // called again, and so nothing would appear to happen.
-      _counter++;
+  String _pencarian = '';
+  String _kategoriDipilih = 'Semua'; // Untuk Fitur F2 (Saring Kategori)
+  bool _urutkanHargaTermurah = true; // Untuk Fitur F1 (Urutkan)
+
+  // Map untuk menyimpan jumlah porsi yang dipesan tiap index menu
+  final Map<int, int> _jumlahPesanan = {};
+
+  @override
+  void initState() {
+    super.initState();
+    _semuaMenu = getDaftarMenuAwal();
+    // Controller dibuat di initState
+    _searchController = TextEditingController();
+    _searchController.addListener(() {
+      setState(() {
+        _pencarian = _searchController.text;
+      });
     });
   }
 
   @override
+  void dispose() {
+    // Controller dibuang di dispose
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  // Menghitung Total Biaya Seluruh Pesanan (Khas 1 & Aturan Usaha 1)
+  double _hitungTotalKeseluruhan() {
+    double total = 0;
+    for (int i = 0; i < _semuaMenu.length; i++) {
+      int porsi = _jumlahPesanan[i] ?? 0;
+      if (porsi > 0) {
+        total += _semuaMenu[i].hitungTotalHarga(porsi);
+      }
+    }
+    return total;
+  }
+
+  @override
   Widget build(BuildContext context) {
-    // This method is rerun every time setState is called, for instance as done
-    // by the _incrementCounter method above.
-    //
-    // The Flutter framework has been optimized to make rerunning build methods
-    // fast, so that you can just rebuild anything that needs updating rather
-    // than having to individually change instances of widgets.
+    // Saring data berdasarkan pencarian (Khas 2) dan kategori (F2)
+    List<MenuItem> listFilter = _semuaMenu.where((item) {
+      bool cocokPencarian = item.namaMenu.toLowerCase().contains(_pencarian.toLowerCase());
+      bool cocokKategori = _kategoriDipilih == 'Semua' || item.kategori == _kategoriDipilih;
+      return cocokPencarian && cocokKategori;
+    }).toList();
+
+    // Fitur F1: Urutkan Berdasarkan Harga
+    listFilter.sort((a, b) {
+      return _urutkanHargaTermurah
+          ? a.harga.compareTo(b.harga)
+          : b.harga.compareTo(a.harga);
+    });
+
     return Scaffold(
       appBar: AppBar(
-        // TRY THIS: Try changing the color here to a specific color (to
-        // Colors.amber, perhaps?) and trigger a hot reload to see the AppBar
-        // change color while the other colors stay the same.
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        // Here we take the value from the MyHomePage object that was created by
-        // the App.build method, and use it to set our appbar title.
-        title: Text(widget.title),
+        title: const Text('Kasir Warung Makan'),
+        centerTitle: true,
       ),
-      body: Center(
-        // Center is a layout widget. It takes a single child and positions it
-        // in the middle of the parent.
-        child: Column(
-          // Column is also a layout widget. It takes a list of children and
-          // arranges them vertically. By default, it sizes itself to fit its
-          // children horizontally, and tries to be as tall as its parent.
-          //
-          // Column has various properties to control how it sizes itself and
-          // how it positions its children. Here we use mainAxisAlignment to
-          // center the children vertically; the main axis here is the vertical
-          // axis because Columns are vertical (the cross axis would be
-          // horizontal).
-          //
-          // TRY THIS: Invoke "debug painting" (choose the "Toggle Debug Paint"
-          // action in the IDE, or press "p" in the console), to see the
-          // wireframe for each widget.
-          mainAxisAlignment: .center,
-          children: [
-            const Text('You have pushed the button this many times:'),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headlineMedium,
+      body: Column(
+        children: [
+          // 1. Kotak Pencarian (Khas 2)
+          Padding(
+            padding: const EdgeInsets.all(12.0),
+            child: TextField(
+              controller: _searchController,
+              decoration: InputDecoration(
+                hintText: 'Cari nama menu...',
+                prefixIcon: const Icon(Icons.search),
+                suffixIcon: _pencarian.isNotEmpty
+                    ? IconButton(
+                        icon: const Icon(Icons.clear),
+                        onPressed: () => _searchController.clear(),
+                      )
+                    : null,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                filled: true,
+                fillColor: Colors.white,
+              ),
             ),
-          ],
-        ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
+          ),
+
+          // 2. Bagian Fitur Pilihan F1 & F2
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 12.0),
+            child: Column(
+              children: [
+                // F2: Deretan Tombol Kategori
+                SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: Row(
+                    children: ['Semua', 'Makanan', 'Minuman', 'Cemilan'].map((kat) {
+                      bool isSelected = _kategoriDipilih == kat;
+                      return Padding(
+                        padding: const EdgeInsets.only(right: 6.0),
+                        child: ChoiceChip(
+                          label: Text(kat),
+                          selected: isSelected,
+                          selectedColor: Colors.teal,
+                          labelStyle: TextStyle(
+                            color: isSelected ? Colors.white : Colors.black,
+                          ),
+                          onSelected: (val) {
+                            setState(() {
+                              _kategoriDipilih = kat;
+                            });
+                          },
+                        ),
+                      );
+                    }).toList(),
+                  ),
+                ),
+                const SizedBox(height: 8),
+                // F1: Tombol Urutkan Harga
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'Menampilkan: ${listFilter.length} menu',
+                      style: const TextStyle(color: Colors.grey, fontSize: 13),
+                    ),
+                    OutlinedButton.icon(
+                      style: OutlinedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                      ),
+                      icon: Icon(
+                        _urutkanHargaTermurah ? Icons.arrow_upward : Icons.arrow_downward,
+                        size: 16,
+                      ),
+                      label: Text(
+                        _urutkanHargaTermurah ? 'Harga: Murah > Mahal' : 'Harga: Mahal > Murah',
+                        style: const TextStyle(fontSize: 12),
+                      ),
+                      onPressed: () {
+                        setState(() {
+                          _urutkanHargaTermurah = !_urutkanHargaTermurah;
+                        });
+                      },
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 8),
+
+          // 3. Grid Responsif Menggunakan LayoutBuilder & GridView.builder
+          Expanded(
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                // Aturan Ketentuan Responsif
+                int crossAxisCount = 1;
+                if (constraints.maxWidth >= 900) {
+                  crossAxisCount = 3; // 900 ke atas: 3 kolom
+                } else if (constraints.maxWidth >= 600) {
+                  crossAxisCount = 2; // 600 - 899: 2 kolom
+                } else {
+                  crossAxisCount = 1; // < 600: 1 kolom
+                }
+
+                if (listFilter.isEmpty) {
+                  return const Center(
+                    child: Text('Menu tidak ditemukan.'),
+                  );
+                }
+
+                return GridView.builder(
+                  padding: const EdgeInsets.all(12),
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: crossAxisCount,
+                    childAspectRatio: constraints.maxWidth < 600 ? 1.8 : 1.3,
+                    crossAxisSpacing: 12,
+                    mainAxisSpacing: 12,
+                  ),
+                  itemCount: listFilter.length,
+                  itemBuilder: (context, index) {
+                    final item = listFilter[index];
+                    int meIndex = _semuaMenu.indexOf(item);
+
+                    return MenuCard(
+                      item: item,
+                      jumlahPorsi: _jumlahPesanan[meIndex] ?? 0,
+                      onJumlahChanged: (baru) {
+                        setState(() {
+                          _jumlahPesanan[meIndex] = baru;
+                        });
+                      },
+                    );
+                  },
+                );
+              },
+            ),
+          ),
+
+          // 4. Bagian Bottom Bar untuk Total Pesanan (Khas 1)
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.08),
+                  blurRadius: 10,
+                  offset: const Offset(0, -4),
+                ),
+              ],
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Text(
+                      'Total Pesanan:',
+                      style: TextStyle(fontSize: 12, color: Colors.grey),
+                    ),
+                    Text(
+                      'Rp ${_hitungTotalKeseluruhan().toStringAsFixed(0)}',
+                      style: const TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.teal,
+                      ),
+                    ),
+                  ],
+                ),
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                  onPressed: _hitungTotalKeseluruhan() == 0
+                      ? null
+                      : () {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('Pesanan berhasil dibuat!'),
+                              backgroundColor: Colors.teal,
+                            ),
+                          );
+                        },
+                  child: const Text('Pesan Sekarang'),
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }

@@ -4,6 +4,7 @@ class MenuItem {
   final int harga;
   bool tersedia;
   int stokTersisa;
+  final String imgPath;
 
   MenuItem({
     required this.namaMenu,
@@ -11,6 +12,7 @@ class MenuItem {
     required this.harga,
     required this.tersedia,
     required this.stokTersisa,
+    required this.imgPath,
   });
   
   double hitungTotalHarga(int porsi) {
@@ -35,6 +37,7 @@ List<MenuItem> menuItems = [
     harga: 18000,
     tersedia: true,
     stokTersisa: 12,
+    imgPath: 'assets/images/nasgor.webp',
   ),
   MenuItem(
     namaMenu: 'Mie Ayam Bakso',
@@ -42,13 +45,15 @@ List<MenuItem> menuItems = [
     harga: 14000,
     tersedia: true,
     stokTersisa: 8,
+    imgPath: 'assets/images/mie ayam.webp',
   ),
   MenuItem(
     namaMenu: 'Gado-Gado',
-    kategori: 'Vegetarian',
+    kategori: 'Makanan',
     harga: 13000,
     tersedia: true,
     stokTersisa: 6,
+    imgPath: 'assets/images/Gado_gado.jpg',
   ),
   MenuItem(
     namaMenu: 'Ayam Bakar Taliwang',
@@ -56,39 +61,27 @@ List<MenuItem> menuItems = [
     harga: 25000,
     tersedia: true,
     stokTersisa: 4,
+    imgPath: 'assets/images/images.jpg',
   ),
   MenuItem(
-    namaMenu: 'Es Teh Manis',
+    namaMenu: 'Es Teh jumbo',
     kategori: 'Minuman',
     harga: 6000,
     tersedia: true,
     stokTersisa: 20,
+    imgPath: 'assets/images/esteh.webp',
   ),
   MenuItem(
     namaMenu: 'Pisang Goreng Coklat',
-    kategori: 'Dessert',
+    kategori: 'Cemilan',
     harga: 8000,
     tersedia: true,
     stokTersisa: 15,
+    imgPath: 'assets/images/pisang goreng.jpg',
   ),
-  MenuItem(
-    namaMenu: 'Es Teh Manis',
-    kategori: 'Minuman',
-    harga: 5000,
-    tersedia: true,
-    stokTersisa: 20,),
-  MenuItem(
-    namaMenu: 'Es Teh Manis',
-    kategori: 'Minuman',
-    harga: 5000,
-    tersedia: true,
-    stokTersisa: 20,),
-  MenuItem(
-    namaMenu: 'Es Teh Manis',
-    kategori: 'Minuman',
-    harga: 5000,
-    tersedia: true,
-    stokTersisa: 20,)
-  
-
 ];
+
+List<MenuItem> getDaftarMenuAwal() {
+  return menuItems;
+}
+
