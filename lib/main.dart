@@ -82,7 +82,7 @@ class _HalamanMenuWarungState extends State<HalamanMenuWarung> {
       return cocokPencarian && cocokKategori;
     }).toList();
 
-    // Fitur F1: Urutkan Berdasarkan Harga
+    // Fitur F1: Urutkan Berdasarkan Harga (Termurah ke Termahal atau Sebaliknya)
     listFilter.sort((a, b) {
       return _urutkanHargaTermurah
           ? a.harga.compareTo(b.harga)
